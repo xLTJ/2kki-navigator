@@ -6,10 +6,64 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 // REMEMBER WHEN UPDATING SCHEMA!!!
 // Run `npx prisma db push`
 // Run `npx prisma generate`
+
+model World {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  maps        Map[]
+
+  outgoingConnections WorldConnection[] @relation("SourceWorld")
+  incomingConnections WorldConnection[] @relation("TargetWorld")
+}
+
+model Map {
+  id      Int    @id @default(autoincrement())
+  mapId   String
+  xmlKey  String
+  worldId Int
+  world   World  @relation(fields: [worldId], references: [id])
+
+  outgoingConnections MapConnection[] @relation("SourceMap")
+  incomingConnections MapConnection[] @relation("TargetMap")
+
+  chipsetId Int
+  chipset   Chipset @relation(fields: [chipsetId], references: [id])
+}
+
+model WorldConnection {
+  id            Int   @id @default(autoincrement())
+  sourceWorldId Int
+  targetWorldId Int
+  sourceWorld   World @relation("SourceWorld", fields: [sourceWorldId], references: [id])
+  targetWorld   World @relation("TargetWorld", fields: [targetWorldId], references: [id])
+
+  effectRequired               String?
+  switchRequirementId          String?
+  switchRequirementDescription String?
+}
+
+model MapConnection {
+  id          Int @id @default(autoincrement())
+  sourceMapId Int
+  targetMapId Int
+  sourceMap   Map @relation("SourceMap", fields: [sourceMapId], references: [id])
+  targetMap   Map @relation("TargetMap", fields: [targetMapId], references: [id])
+}
+
+model Chipset {
+  id               Int    @id @default(autoincrement())
+  chipsetId        String
+  upperPassability Int[]
+  lowerPassability Int[]
+  imageKey         String
+
+  maps Map[]
+}
