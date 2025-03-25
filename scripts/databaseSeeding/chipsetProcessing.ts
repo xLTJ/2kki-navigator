@@ -3,6 +3,7 @@ import {readFile} from "node:fs/promises";
 import {AppDBChipSet, GameDBChipSet} from "@/scripts/databaseSeeding/types";
 
 export async function processChipsetData(filepath: string): Promise<Map<number, AppDBChipSet>> {
+    console.log("Processing Chipset Data...")
     const databaseXml = await readFile(filepath, "utf8");
 
     const parser = new XMLParser();
@@ -19,5 +20,6 @@ export async function processChipsetData(filepath: string): Promise<Map<number, 
         }
     });
 
+    console.log("Finished processing Chipset Data");
     return chipsets;
 }
