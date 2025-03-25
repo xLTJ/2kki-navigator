@@ -7,9 +7,6 @@ async function seedDatabase() {
 
     for (const [id, chipset] of chipsets.entries()) {
         try {
-            if (id === 2456) {
-                console.log(`Seeding ${id} chipset: ${chipset}`);
-            }
             await prisma.chipset.create({
                 data: {
                     chipsetId: String(id),
