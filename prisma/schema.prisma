@@ -15,10 +15,14 @@ datasource db {
 // Run `npx prisma generate`
 
 model World {
-  id          Int     @id @default(autoincrement())
-  name        String
-  description String?
-  maps        Map[]
+  id                 Int     @id @default(autoincrement())
+  name               String
+  description        String?
+  maps               Map[]
+  author             String
+  releaseVersion     String
+  lastUpdatedVersion String
+  wikiUrl            String
 
   outgoingConnections WorldConnection[] @relation("SourceWorld")
   incomingConnections WorldConnection[] @relation("TargetWorld")

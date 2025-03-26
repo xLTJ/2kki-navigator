@@ -5,6 +5,8 @@ import {S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand} 
 import * as fs from "node:fs";
 import * as readline from "node:readline";
 import path from "node:path";
+import {processMapData} from "@/scripts/databaseSeeding/mapDataProcessing";
+import {getWorldData} from "@/scripts/databaseSeeding/getWorldData";
 
 const r2client = new S3Client({
     region: "auto",
@@ -16,8 +18,9 @@ const r2client = new S3Client({
 });
 
 async function seedDatabase() {
-    const gameDatabase = "data/processed/RPG_RT_database.xml"
-    const gameFilesPath = "data/2kki_game_files"
+    const gameDatabase = "data/processed/RPG_RT_database.xml";
+    const gameFilesPath = "data/2kki_game_files";
+    const mapDataPath = "data/processed/maps";
     const R2BucketNames = {
         chipsetImages: "chipsetImageFiles"
     }
@@ -45,6 +48,30 @@ async function seedDatabase() {
         case "y":
             await wipeAllR2ObjectsFromPath(R2BucketNames.chipsetImages)
             await seedChipsetImages(`${gameFilesPath}/ChipSet`, R2BucketNames.chipsetImages)
+            break;
+        case "n":
+            break;
+        default:
+            console.log("Invalid input, defaulting to no");
+            break;
+    }
+
+    const seedWorldDataAnswer = await askQuestion(reader, "Seed World Data? [y/n] ");
+    switch (seedWorldDataAnswer.toLowerCase()) {
+        case "y":
+            await getWorldData();
+            break;
+        case "n":
+            break;
+        default:
+            console.log("Invalid input, defaulting to no");
+            break;
+    }
+
+    const seedMapDataAnswer = await askQuestion(reader, "Seed Map Data? [y/n] ");
+    switch (seedMapDataAnswer.toLowerCase()) {
+        case "y":
+            await processMapData(mapDataPath);
             break;
         case "n":
             break;
