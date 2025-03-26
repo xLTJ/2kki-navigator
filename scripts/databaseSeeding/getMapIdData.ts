@@ -1,3 +1,6 @@
+// Not in use, getting this data together with the world data in getWorldData.ts now.
+// Keeping this file for a bit just in case i need something here for somee reason
+
 import wtf from "wtf_wikipedia";
 
 interface MapIdDataResponse {
@@ -80,7 +83,7 @@ export async function getMapIdData(): Promise<MapIdData[]> {
     const mapIdData: MapIdData[] = []
 
     for (const mapIdWikiData of Object.values(mapIdDataRaw.query.pages)) {
-        const doc = wtf(mapIdWikiData.revisions?.[0]?.["*"] ?? "");
+        const doc = wtf(mapIdWikiData.revisions?.[0]?.["*"] || "");
         const tables = doc.tables();
 
         tables.forEach((table) => {
@@ -91,11 +94,14 @@ export async function getMapIdData(): Promise<MapIdData[]> {
             const worldNamePrefix = "[[Yume 2kki:"
             mapIdWikiRows.forEach((row) => {
                 if (row.col4.data.text === "Accessible") {
-                    mapIdData.push({
-                        id: row.col1.data.text,
-                        author: row.col2.data.text,
-                        world: row.col3.data.wiki.split("|")[0]?.substring(worldNamePrefix.length) ?? "",
-                    });
+                    const worldsUsedFor = row.col3.data.wiki.split("]] ")
+                    worldsUsedFor.forEach((worldName) => {
+                        mapIdData.push({
+                            id: row.col1.data.text,
+                            author: row.col2.data.text,
+                            world: worldName.split("|")[0]?.substring(worldNamePrefix.length) || "",
+                        });
+                    })
                 }
             })
         })
